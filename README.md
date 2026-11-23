@@ -43,14 +43,16 @@ Das Skript erstellt selbstständig einen **unprivilegierten** LXC, klont das Rep
 richtet Python-venv + systemd ein, **verifiziert** (Service aktiv + HTTP-Check)
 und gibt die finale URL aus.
 
-## Web-UI
+## Web-UI (Dashboard im Vedetta-Stil)
 
 Nach der Installation: `http://<container-ip>:8080/`
 
-- Summary-Tiles (Geräte gesamt / neu / Proxmox-Hosts / Router)
-- Gerätetabelle mit IP, Hostname, Hersteller, Rolle, offenen Ports, MAC, „neu"-Badge
-- Filterfeld, Auto-Refresh (10 s), Button **„Jetzt scannen"**
-- Dunkles Theme, bindet auf `0.0.0.0`
+- **Kachel-Dashboard** (Tiles) mit Hersteller-Logos (Fritz!, Synology, Proxmox, Raspberry Pi …),
+  gruppiert nach Typ (Router, Server, NAS, PC, Handy, Kamera/IoT, Drucker, Audio, Sonstige)
+- **Sidebar** mit Radar-Logo, Gerätezahl, „neu", Proxmox-Hosts, Routern, letztem Scan
+- **Hell/Dunkel** umschaltbar (dauerhaft gespeichert), **Live**-Auto-Refresh (10 s)
+- **Suche/Filter**, Button **„Jetzt scannen"**, Detail-Dialog pro Gerät (IP, MAC, Ports, OS …)
+- bindet auf `0.0.0.0`; Logos/Icons sind MIT-lizenziert (siehe `THIRD_PARTY_NOTICES.md`)
 
 ## API
 

@@ -134,6 +134,8 @@ async def trigger_scan():
 # ---- Statisches Frontend (gebauter React/Vite-Build) --------------------
 if os.path.isdir(os.path.join(STATIC_DIR, "assets")):
     app.mount("/assets", StaticFiles(directory=os.path.join(STATIC_DIR, "assets")), name="assets")
+if os.path.isdir(os.path.join(STATIC_DIR, "logos")):
+    app.mount("/logos", StaticFiles(directory=os.path.join(STATIC_DIR, "logos")), name="logos")
 
 
 @app.get("/")
