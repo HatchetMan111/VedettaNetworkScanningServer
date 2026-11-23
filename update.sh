@@ -13,8 +13,9 @@ echo "▶ Update in Container $CTID ..."
 pct exec "$CTID" -- bash -c '
   set -e
   cd /opt/netzwerk-scanner
-  echo ▶ git pull
-  git pull --ff-only
+  echo ▶ git fetch
+  git fetch --depth 1 origin main
+  git reset --hard FETCH_HEAD
   echo ▶ pip install
   venv/bin/pip install -q -r requirements.txt
   echo ▶ restart
