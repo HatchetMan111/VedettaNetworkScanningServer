@@ -1,0 +1,1 @@
+"""Netzwerk-Scanner – FastAPI-Backend + Scanner-Logik."""

@@ -1,0 +1,21 @@
+[Unit]
+Description=Netzwerk-Scanner (arp-scan + nmap) – Web-UI & Scanner
+Documentation=https://github.com/HatchetMan111/VedettaNetworkScanningServer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/netzwerk-scanner
+Environment=NETZWERK_SCANNER_DATA=/var/lib/netzwerk-scanner
+Environment=NETZWERK_SCANNER_IFACE=eth0
+Environment=NETZWERK_SCANNER_PORT=8080
+Environment=NETZWERK_SCANNER_INTERVAL=900
+# ${...} wird vom systemd aus der Environment-Zeile ersetzt
+ExecStart=/opt/netzwerk-scanner/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${NETZWERK_SCANNER_PORT}
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

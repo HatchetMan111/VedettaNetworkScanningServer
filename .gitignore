@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node (Frontend) – node_modules wird nicht gebraucht, Build liegt in static/
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Editor / OS
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Logs / Laufzeit
+*.log
