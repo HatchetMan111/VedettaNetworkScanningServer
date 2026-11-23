@@ -28,7 +28,8 @@ CTID=120 BRIDGE=vmbr0 VLAN= STORAGE=local-lvm PORT=8080 \
 |-----------|----------------|--------------------------------------------------|
 | `BRIDGE`  | `vmbr0`        | LAN-Bridge (dort wird gescannt)                  |
 | `VLAN`    | *(leer)*       | VLAN-Tag, z. B. `20`                             |
-| `STORAGE` | `local-lvm`    | Storage für Rootfs + Template                    |
+| `STORAGE` | `local-lvm`    | Rootfs-Storage (CT-Disk, `rootdir`)              |
+| `TEMPLATE_STORAGE` | `local` | Template-Storage (`vztmpl`) – **nicht** `local-lvm` |
 | `CTID`    | *nächste freie*| Container-ID                                    |
 | `PORT`    | `8080`         | Web-UI-Port                                      |
 | `CORES`   | `2`            | CPU-Kerne                                        |

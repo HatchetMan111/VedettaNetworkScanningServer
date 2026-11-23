@@ -23,7 +23,8 @@ APP_DIR="/opt/${APP_NAME}"
 PORT="${PORT:-8080}"
 BRIDGE="${BRIDGE:-vmbr0}"
 VLAN="${VLAN:-}"
-STORAGE="${STORAGE:-local-lvm}"
+STORAGE="${STORAGE:-local-lvm}"                # Rootfs-Storage (CT-Disk, rootdir)
+TEMPLATE_STORAGE="${TEMPLATE_STORAGE:-local}"  # Template-Storage (vztmpl) – NICHT local-lvm!
 TEMPLATE="${TEMPLATE:-}"
 CTID="${CTID:-}"
 CORES="${CORES:-2}"
@@ -53,8 +54,8 @@ on_error() {
   echo "Letzte 60 Zeilen des kompletten Logs:"
   tail -n 60 "$LOG" 2>/dev/null || true
   echo "════════════════════════════════════════════════════════════"
-  echo "Tipp: für ein vollständiges Trace-Log neu starten mit:"
-  echo "    bash -x $(basename "$0")"
+  echo "Tipp: Skript lokal speichern und mit 'bash -x netzwerk-scanner.sh' erneut starten"
+  echo "      (vollständiges Trace-Log) – oder 'cat ${LOG}' ansehen."
   exit "$rc"
 }
 trap 'on_error $LINENO' ERR
@@ -83,14 +84,26 @@ if pct status "$CTID" >/dev/null 2>&1; then
   pct destroy "$CTID" >/dev/null 2>&1 || true
 fi
 
-# ---- 2) Template sicherstellen --------------------------------------------
+# ---- 2) Template-Storage (vztmpl) + Rootfs-Storage (rootdir) + Template ------
+# WICHTIG: Templates (vztmpl) liegen NICHT auf local-lvm (das kann nur rootdir/images).
+# Darum getrennte Storages: TEMPLATE_STORAGE (z. B. local) und STORAGE (rootfs).
+if ! pvesm status --content vztmpl 2>/dev/null | awk 'NR>1{print $1}' | grep -qx "$TEMPLATE_STORAGE"; then
+  _d="$(pvesm status --content vztmpl 2>/dev/null | awk 'NR>1{print $1; exit}')"
+  [ -n "$_d" ] && TEMPLATE_STORAGE="$_d"
+fi
+if ! pvesm status --content rootdir 2>/dev/null | awk 'NR>1{print $1}' | grep -qx "$STORAGE"; then
+  _d="$(pvesm status --content rootdir 2>/dev/null | awk 'NR>1{print $1; exit}')"
+  [ -n "$_d" ] && STORAGE="$_d"
+fi
+echo "▶ Template-Storage: ${TEMPLATE_STORAGE}  |  Rootfs-Storage: ${STORAGE}"
+
 if [ -z "$TEMPLATE" ]; then
   TEMPLATE="$(pveam available --section system | awk '/debian-12-standard.*amd64/{print $2; exit}')"
   [ -n "$TEMPLATE" ] || { echo "Kein debian-12-standard gefunden – TEMPLATE=... setzen."; exit 1; }
 fi
-if ! pveam list "$STORAGE" 2>/dev/null | grep -q "$TEMPLATE"; then
-  step "Lade Template ${TEMPLATE} nach ${STORAGE}"
-  pveam download "$STORAGE" "$TEMPLATE"
+if ! pveam list "$TEMPLATE_STORAGE" 2>/dev/null | grep -q "$TEMPLATE"; then
+  step "Lade Template ${TEMPLATE} nach ${TEMPLATE_STORAGE}"
+  pveam download "$TEMPLATE_STORAGE" "$TEMPLATE"
 fi
 
 # ---- 3) Container erstellen ------------------------------------------------
@@ -101,7 +114,7 @@ if [ "$IP_MODE" != "dhcp" ] && [ -n "$GW" ]; then
 fi
 
 step "Erstelle LXC ${CTID} (unprivilegiert, Bridge ${BRIDGE}${VLAN:+.${VLAN}}, IP ${IP_MODE})"
-pct create "$CTID" "${STORAGE}:vztmpl/${TEMPLATE}" \
+pct create "$CTID" "${TEMPLATE_STORAGE}:vztmpl/${TEMPLATE}" \
   --hostname "$APP_NAME" \
   --cores "$CORES" \
   --memory "$MEMORY" \
